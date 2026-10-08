@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Koala — Roblox & Web Developer</title>
+  <meta name="description" content="Koala builds Roblox games and web experiences.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    { "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    } }
+  </script>
+</head>
+<body>
+  <div id="loader"><span class="loader-text">BUILDING WORLD</span><span class="loader-bar"><i></i></span></div>
+  <canvas id="world"></canvas>
+  <div class="cursor" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="nav">
+    <a href="#top" class="logo">KOALA<span>.dev</span></a>
+    <div class="links">
+      <a href="#work">Work</a>
+      <a href="#skills">Skills</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="top" class="hero">
+      <p class="eyebrow reveal">// Roblox Game & Web Developer</p>
+      <h1 class="title">
+        <span class="line"><span class="word">I build</span></span>
+        <span class="line"><span class="word glow">worlds</span></span>
+        <span class="line"><span class="word">people play in.</span></span>
+      </h1>
+      <p class="lede reveal">Games on Roblox. Experiences on the web. Engineered to feel alive.</p>
+      <div class="scroll-hint">scroll to explore <i></i></div>
+    </section>
+
+    <section id="work" class="work">
+      <h2 class="section-title reveal"><span>01</span> Selected Work</h2>
+      <div class="cards">
+        <article class="card reveal" data-tilt>
+          <div class="card-tag">Roblox · Luau</div>
+          <h3>Project One</h3>
+          <p>Flagship Roblox experience — in development.</p>
+          <span class="status">Coming soon</span>
+        </article>
+        <article class="card reveal" data-tilt>
+          <div class="card-tag">Roblox · Open Source</div>
+          <h3>Project Two</h3>
+          <p>A reusable Luau framework for other developers — in development.</p>
+          <span class="status">Coming soon</span>
+        </article>
+        <article class="card reveal" data-tilt>
+          <div class="card-tag">Web · Full-stack</div>
+          <h3>Project Three</h3>
+          <p>A web app connected to the Roblox ecosystem — in development.</p>
+          <span class="status">Coming soon</span>
+        </article>
+        <article class="card reveal" data-tilt>
+          <div class="card-tag">Web · WebGL</div>
+          <h3>This Portfolio</h3>
+          <p>Real-time voxel world built with Three.js, custom shaders and bloom. No frameworks.</p>
+          <a class="status live" href="https://github.com/JVFDevelopment/koala-portfolio" target="_blank" rel="noopener">View source →</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="skills" class="skills">
+      <h2 class="section-title reveal"><span>02</span> Toolkit</h2>
+      <div class="marquee"><div class="track">
+        <span>Luau</span><span>Roblox Studio</span><span>TypeScript</span><span>JavaScript</span><span>Three.js</span><span>WebGL</span><span>Node.js</span><span>React</span><span>HTML/CSS</span><span>Git</span>
+        <span>Luau</span><span>Roblox Studio</span><span>TypeScript</span><span>JavaScript</span><span>Three.js</span><span>WebGL</span><span>Node.js</span><span>React</span><span>HTML/CSS</span><span>Git</span>
+      </div></div>
+      <div class="stats">
+        <div class="stat reveal"><b>Gameplay</b><p>Combat, movement, progression and server-authoritative systems.</p></div>
+        <div class="stat reveal"><b>Interfaces</b><p>Responsive, animated UI on Roblox and the web.</p></div>
+        <div class="stat reveal"><b>Real-time 3D</b><p>Shaders, particles and scenes that run smoothly.</p></div>
+      </div>
+    </section>
+
+    <section id="contact" class="contact">
+      <h2 class="big reveal">Let's build<br><span class="glow">something.</span></h2>
+      <div class="contact-links reveal">
+        <a href="https://github.com/JVFDevelopment" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+      <footer>© <span id="yr"></span> Koala</footer>
+    </section>
+  </main>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
