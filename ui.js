@@ -12,6 +12,7 @@ function show() {
   requestAnimationFrame(() => {
     document.getElementById("loader").classList.add("done");
     document.body.classList.add("loaded");
+    setTimeout(() => root.classList.add("settled"), 1600); // headline slide-in finished
   });
 }
 addEventListener("worldready", show);
@@ -32,6 +33,23 @@ const onScroll = () => root.classList.toggle("scrolled", scrollY > 40);
 addEventListener("scroll", onScroll, { passive: true });
 onScroll();
 
+// ---------- copy Discord handle ----------
+const copied = document.querySelector(".copied");
+let copiedTimer;
+document.querySelectorAll("[data-copy]").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const text = btn.dataset.copy;
+    try {
+      await navigator.clipboard.writeText(text);
+      copied.textContent = `Copied "${text}" — add me on Discord`;
+    } catch {
+      copied.textContent = `Discord: ${text}`; // clipboard blocked: at least show it
+    }
+    clearTimeout(copiedTimer);
+    copiedTimer = setTimeout(() => { copied.textContent = ""; }, 3000);
+  });
+});
+
 // ---------- cursor + card tilt (mouse only) ----------
 if (finePointer) {
   const cursor = document.querySelector(".cursor");
@@ -48,7 +66,7 @@ if (finePointer) {
     cursor.classList.add("on");
     if (!moving) { moving = true; requestAnimationFrame(follow); }
   });
-  document.querySelectorAll("a, .card").forEach((el) => {
+  document.querySelectorAll("a, button, .card").forEach((el) => {
     el.addEventListener("pointerenter", () => cursor.classList.add("hover"));
     el.addEventListener("pointerleave", () => cursor.classList.remove("hover"));
   });

@@ -4,7 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Koala — Roblox & Web Developer</title>
-  <meta name="description" content="Koala builds Roblox games and web experiences.">
+  <meta name="description" content="Roblox game and web developer. Combat systems, interfaces and real-time 3D. Open for commissions.">
+  <meta name="theme-color" content="#05060d">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -41,6 +44,7 @@
         <span class="line"><span class="word">people play in.</span></span>
       </h1>
       <p class="lede reveal">Games on Roblox. Experiences on the web. Engineered to feel alive.</p>
+      <a class="badge reveal" href="#contact"><i></i>Open for commissions</a>
       <div class="scroll-hint">scroll to explore <i></i></div>
     </section>
 
@@ -54,21 +58,37 @@
           <span class="status">In development</span>
         </article>
         <article class="card reveal" data-tilt>
+          <div class="card-media code-window" aria-hidden="true">
+            <div class="code-bar"><i></i><i></i><i></i><span>Attacks.luau</span></div>
+<pre><code><span class="c">-- attacks are data</span>
+<span class="v">Thrust</span> = {
+  <span class="k">Damage</span> = <span class="n">18</span>,
+  <span class="k">PoiseDamage</span> = <span class="n">14</span>,
+  <span class="k">StaminaCost</span> = <span class="n">16</span>,
+  <span class="k">ActiveStart</span> = <span class="n">0.25</span>,
+  <span class="k">ActiveEnd</span> = <span class="n">0.38</span>,
+},</code></pre>
+          </div>
           <div class="card-tag">Roblox · Luau · Open Source</div>
           <h3>Ember</h3>
           <p>Souls-like combat framework for Roblox. Stamina, i-frame dodge rolls, poise and stagger, lock-on and swept hitboxes, with full server authority.</p>
           <a class="status live" href="https://github.com/JVFDevelopment/ember" target="_blank" rel="noopener">View source →</a>
         </article>
         <article class="card reveal" data-tilt>
+          <div class="card-media"><img src="img/pulse.webp" width="800" height="500" loading="lazy" decoding="async" alt="The Pulse dashboard comparing live player counts for four Roblox games"></div>
           <div class="card-tag">Web · Serverless</div>
           <h3>Pulse</h3>
           <p>Live analytics for Roblox games. Compare player counts in real time, with hand-built canvas charts and a serverless API proxy.</p>
-          <a class="status live" href="https://github.com/JVFDevelopment/pulse" target="_blank" rel="noopener">View source →</a>
+          <div class="card-links">
+            <a class="status live" href="https://pulserblx.netlify.app/" target="_blank" rel="noopener">Live site ↗</a>
+            <a class="status live" href="https://github.com/JVFDevelopment/pulse" target="_blank" rel="noopener">View source →</a>
+          </div>
         </article>
         <article class="card reveal" data-tilt>
+          <div class="card-media"><img src="img/portfolio.webp" width="800" height="500" loading="lazy" decoding="async" alt="The voxel island from this site, rendered in real time"></div>
           <div class="card-tag">Web · WebGL</div>
           <h3>This Portfolio</h3>
-          <p>Real-time voxel world built with Three.js, custom shaders and bloom. No frameworks.</p>
+          <p>Real-time voxel world in Three.js with bloom and shadows. Adaptive quality keeps it smooth, even on phones. No frameworks.</p>
           <a class="status live" href="https://github.com/JVFDevelopment/koala-portfolio" target="_blank" rel="noopener">View source →</a>
         </article>
       </div>
@@ -88,10 +108,14 @@
     </section>
 
     <section id="contact" class="contact">
+      <p class="badge reveal"><i></i>Open for commissions</p>
       <h2 class="big reveal">Let's build<br><span class="glow">something.</span></h2>
       <div class="contact-links reveal">
+        <button type="button" class="copy" data-copy="koalaswrld" aria-label="Copy Discord username koalaswrld">Discord · <b>koalaswrld</b></button>
+        <a href="https://www.roblox.com/users/1800340615/profile" target="_blank" rel="noopener">Roblox ↗</a>
         <a href="https://github.com/JVFDevelopment" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
+      <p class="copied" role="status" aria-live="polite"></p>
       <footer>© <span id="yr"></span> Koala</footer>
     </section>
   </main>
