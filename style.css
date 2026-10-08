@@ -113,7 +113,8 @@ a.badge:hover { border-color: var(--a1); }
 
 /* dim the world behind the reading sections, whatever angle the island is at */
 .work { background: linear-gradient(180deg, transparent, var(--scrim) 200px); }
-.skills { background: linear-gradient(180deg, var(--scrim) calc(100% - 200px), transparent); }
+.skills { background: var(--scrim); }
+.about { background: linear-gradient(180deg, var(--scrim) calc(100% - 200px), transparent); }
 
 .section-title { font-size: clamp(32px, 5vw, 64px); letter-spacing: -.03em; margin-bottom: 60px; }
 .section-title span { font-family: "JetBrains Mono", monospace; font-size: 14px; color: var(--a1); vertical-align: top; margin-right: 12px; }
@@ -218,6 +219,22 @@ a.badge:hover { border-color: var(--a1); }
 /* frosted glass only where the GPU has headroom: the blur is redone every frame behind a moving scene */
 @media (hover: hover) and (pointer: fine) {
   html:not(.lite) .card, html:not(.lite) .stat { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+}
+
+.about { display: flex; flex-direction: column; justify-content: center; }
+.about-grid { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: center; }
+@media (min-width: 900px) { .about-grid { grid-template-columns: 1fr 1fr; gap: 56px; } }
+.about-lead { font-size: clamp(30px, 4vw, 54px); line-height: 1.12; letter-spacing: -.03em; font-weight: 700; text-shadow: 0 2px 24px var(--bg); }
+.about-lead em {
+  font-style: normal; background: linear-gradient(100deg, var(--a1), var(--a2) 60%, var(--a3));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.about-body { display: grid; gap: 16px; padding: 32px; border: 1px solid var(--line); border-radius: 20px; background: var(--card); }
+.about-body p { color: var(--text-2); line-height: 1.65; font-size: 17px; }
+.facts { list-style: none; display: grid; gap: 10px; margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--line); font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--text-2); }
+.facts b { color: var(--a1); font-weight: 600; }
+@media (hover: hover) and (pointer: fine) {
+  html:not(.lite) .about-body { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 }
 
 .contact { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }

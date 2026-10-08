@@ -173,9 +173,10 @@ const MOODS = [
   { core: 0x7cf7c9, sky: 0x8a7bff, crystals: [0x8a7bff, 0xff6fb5, 0x7cf7c9] }, // hero
   { core: 0xff7a3d, sky: 0xff6a4d, crystals: [0xff4d2e, 0xffae3d, 0xff6fb5] }, // work: Severance embers
   { core: 0x9d8cff, sky: 0x6f7bff, crystals: [0xb59cff, 0x8a7bff, 0x7cf7c9] }, // services
+  { core: 0xff6fb5, sky: 0xb46fff, crystals: [0xff6fb5, 0xffa3d1, 0x8a7bff] }, // about
   { core: 0x7cf7c9, sky: 0x8a7bff, crystals: [0xff6fb5, 0x7cf7c9, 0x8a7bff] }, // contact
 ].map((m) => ({ core: new THREE.Color(m.core), sky: new THREE.Color(m.sky), crystals: m.crystals.map((c) => new THREE.Color(c)) }));
-const moodSections = ["top", "work", "services", "contact"].map((id) => document.getElementById(id));
+const moodSections = ["top", "work", "services", "about", "contact"].map((id) => document.getElementById(id));
 let moodMids = [];
 const mood = { core: new THREE.Color(0x7cf7c9), sky: new THREE.Color(0x8a7bff), crystals: crystalColors.map((c) => new THREE.Color(c)) };
 const target = { core: new THREE.Color(), sky: new THREE.Color(), crystals: crystalColors.map(() => new THREE.Color()) };
@@ -362,7 +363,7 @@ let smoothScroll = 0, maxScroll = 1, resizeQueued = false;
 const size = { w: 0, h: 0 };
 const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
 const cursorRing = document.querySelector(".cursor");
-const isUi = (el) => el instanceof Element && el.closest("a, button, input, .card, .stat");
+const isUi = (el) => el instanceof Element && el.closest("a, button, input, .card, .stat, .about-body");
 const pointer = { x: 0, y: 0, moved: false, overUi: false };
 addEventListener("pointermove", (e) => {
   mouse.set(e.clientX / innerWidth - 0.5, e.clientY / innerHeight - 0.5);
