@@ -5,7 +5,9 @@
   --a1: #7cf7c9;
   --a2: #8a7bff;
   --a3: #ff6fb5;
-  --card: rgba(18, 20, 40, 0.45);
+  --text-2: #b9bdda; /* body copy on panels; brighter than --muted so it holds up over the world */
+  --card: rgba(11, 13, 28, 0.8);
+  --scrim: rgba(5, 6, 13, 0.35);
   --line: rgba(255, 255, 255, 0.09);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -18,25 +20,28 @@ body {
   cursor: none;
 }
 a { color: inherit; text-decoration: none; cursor: none; }
-@media (hover: none) { body, a { cursor: auto; } .cursor { display: none; } }
+@media (hover: none), (pointer: coarse) { body, a { cursor: auto; } .cursor, .grain { display: none; } }
 
-#world { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+/* lvh = the large viewport: a phone's URL bar showing/hiding won't resize the canvas */
+#world { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; height: 100lvh; z-index: 0; display: block; }
 main, .nav { position: relative; z-index: 2; }
 
 .grain {
-  position: fixed; inset: -50%; z-index: 3; pointer-events: none; opacity: .06;
+  position: fixed; inset: -15%; z-index: 3; pointer-events: none; opacity: .06;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   animation: grain 1s steps(6) infinite;
 }
 @keyframes grain { to { transform: translate(-10%, 8%); } }
+.lite .grain { display: none; }
 
 .cursor {
   position: fixed; top: 0; left: 0; width: 34px; height: 34px; z-index: 10;
   border: 1.5px solid var(--a1); border-radius: 50%; pointer-events: none;
-  transform: translate(-50%, -50%); mix-blend-mode: difference;
-  transition: width .25s, height .25s, background .25s;
+  transform: translate(-50%, -50%); opacity: 0;
+  transition: width .25s, height .25s, background .25s, opacity .3s;
 }
-.cursor.hover { width: 70px; height: 70px; background: var(--a1); }
+.cursor.on { opacity: 1; }
+.cursor.hover { width: 70px; height: 70px; background: rgba(124, 247, 201, .12); }
 
 #loader {
   position: fixed; inset: 0; z-index: 20; background: var(--bg);
@@ -61,7 +66,7 @@ main, .nav { position: relative; z-index: 2; }
 
 section { min-height: 100vh; padding: 120px clamp(16px, 6vw, 96px); }
 
-.hero { display: flex; flex-direction: column; justify-content: center; }
+.hero { position: relative; display: flex; flex-direction: column; justify-content: center; }
 .eyebrow { font-family: "JetBrains Mono", monospace; color: var(--a1); font-size: 14px; margin-bottom: 22px; }
 .title { font-size: clamp(48px, 11vw, 170px); line-height: .9; font-weight: 700; letter-spacing: -.04em; }
 .title .line { display: block; overflow: hidden; }
@@ -74,10 +79,15 @@ section { min-height: 100vh; padding: 120px clamp(16px, 6vw, 96px); }
   -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 0 30px rgba(124, 247, 201, .35));
 }
-.lede { max-width: 520px; margin-top: 30px; color: var(--muted); font-size: clamp(16px, 1.6vw, 20px); }
-.scroll-hint { position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .25em; color: var(--muted); text-transform: uppercase; display: grid; justify-items: center; gap: 10px; }
+.lede { max-width: 520px; margin-top: 30px; color: var(--text-2); font-size: clamp(16px, 1.6vw, 20px); text-shadow: 0 1px 14px var(--bg); }
+.scroll-hint { position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .25em; color: var(--muted); text-transform: uppercase; display: grid; justify-items: center; gap: 10px; transition: opacity .4s; }
+.scrolled .scroll-hint { opacity: 0; }
 .scroll-hint i { width: 1px; height: 46px; background: linear-gradient(var(--a1), transparent); animation: drip 1.8s ease-in-out infinite; transform-origin: top; }
 @keyframes drip { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+/* dim the world behind the reading sections, whatever angle the island is at */
+.work { background: linear-gradient(180deg, transparent, var(--scrim) 200px); }
+.skills { background: linear-gradient(180deg, var(--scrim) calc(100% - 200px), transparent); }
 
 .section-title { font-size: clamp(32px, 5vw, 64px); letter-spacing: -.03em; margin-bottom: 60px; }
 .section-title span { font-family: "JetBrains Mono", monospace; font-size: 14px; color: var(--a1); vertical-align: top; margin-right: 12px; }
@@ -85,7 +95,7 @@ section { min-height: 100vh; padding: 120px clamp(16px, 6vw, 96px); }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 24px; perspective: 1200px; }
 .card {
   position: relative; padding: 34px; min-height: 280px; border-radius: 20px; border: 1px solid var(--line);
-  background: var(--card); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  background: var(--card);
   display: flex; flex-direction: column; gap: 14px; transform-style: preserve-3d; transition: transform .15s ease-out, border-color .3s;
   overflow: hidden;
 }
@@ -95,11 +105,11 @@ section { min-height: 100vh; padding: 120px clamp(16px, 6vw, 96px); }
 }
 .card:hover { border-color: rgba(124, 247, 201, .4); }
 .card:hover::before { opacity: 1; }
-.card-feature { grid-column: 1 / -1; min-height: 340px; background: linear-gradient(135deg, rgba(138,123,255,.18), rgba(255,111,181,.08) 60%, var(--card)); }
+.card-feature { grid-column: 1 / -1; min-height: 340px; background: linear-gradient(135deg, rgba(138,123,255,.22), rgba(255,111,181,.1) 60%, transparent), var(--card); }
 .card-feature h3 { font-size: clamp(40px, 6vw, 84px); }
 .card-tag { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--a2); }
 .card h3 { font-size: 32px; letter-spacing: -.02em; }
-.card p { color: var(--muted); line-height: 1.6; flex: 1; }
+.card p { color: var(--text-2); line-height: 1.6; flex: 1; }
 .status { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 6px 14px; align-self: flex-start; }
 .status.live { color: var(--a1); border-color: rgba(124, 247, 201, .4); }
 
@@ -108,9 +118,17 @@ section { min-height: 100vh; padding: 120px clamp(16px, 6vw, 96px); }
 .track span:nth-child(odd) { -webkit-text-stroke: 1px var(--fg); color: transparent; }
 @keyframes marq { to { transform: translateX(-50%); } }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 24px; }
-.stat { padding: 28px; border-left: 2px solid var(--a1); background: linear-gradient(90deg, rgba(124,247,201,.06), transparent); }
+.stat {
+  padding: 28px; border: 1px solid var(--line); border-left: 2px solid var(--a1); border-radius: 0 16px 16px 0;
+  background: linear-gradient(90deg, rgba(124,247,201,.08), transparent 70%), var(--card);
+}
 .stat b { font-size: 22px; display: block; margin-bottom: 8px; }
-.stat p { color: var(--muted); line-height: 1.6; }
+.stat p { color: var(--text-2); line-height: 1.6; }
+
+/* frosted glass only where the GPU has headroom: the blur is redone every frame behind a moving scene */
+@media (hover: hover) and (pointer: fine) {
+  html:not(.lite) .card, html:not(.lite) .stat { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+}
 
 .contact { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
 .big { font-size: clamp(52px, 12vw, 180px); line-height: .92; letter-spacing: -.05em; }

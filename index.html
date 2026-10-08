@@ -11,10 +11,11 @@
   <link rel="stylesheet" href="style.css">
   <script type="importmap">
     { "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
         "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
     } }
   </script>
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js">
 </head>
 <body>
   <div id="loader"><span class="loader-text">BUILDING WORLD</span><span class="loader-bar"><i></i></span></div>
@@ -95,6 +96,7 @@
     </section>
   </main>
 
+  <script src="ui.js"></script>
   <script type="module" src="main.js"></script>
 </body>
 </html>
