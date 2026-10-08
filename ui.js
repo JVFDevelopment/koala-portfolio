@@ -28,6 +28,38 @@ const io = new IntersectionObserver((entries) => {
 }, { threshold: 0.15 });
 document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 
+// ---------- Severance: embers + counters ----------
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const embers = document.querySelector(".embers");
+if (embers && !reduceMotion) {
+  const count = finePointer ? 18 : 10;
+  for (let i = 0; i < count; i++) {
+    const e = document.createElement("i");
+    const r = (n) => (Math.sin(i * 12.9898 + n * 78.233) * 43758.5453) % 1; // stable pseudo-random in (-1, 1)
+    e.style.cssText = `--x:${(Math.abs(r(1)) * 100).toFixed(1)}%;--s:${(2 + Math.abs(r(2)) * 3).toFixed(1)}px;` +
+      `--d:${(5 + Math.abs(r(3)) * 5).toFixed(2)}s;--delay:${(-Math.abs(r(4)) * 10).toFixed(2)}s`;
+    embers.append(e);
+  }
+}
+
+const counters = document.querySelectorAll("[data-count]");
+if (!reduceMotion) {
+  counters.forEach((el) => (el.textContent = "0"));
+  const countIo = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      countIo.unobserve(entry.target);
+      const el = entry.target, end = +el.dataset.count, start = performance.now();
+      (function step(now) {
+        const p = Math.min(1, (now - start) / 1400);
+        el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(step);
+      })(start);
+    });
+  }, { threshold: 0.6 });
+  counters.forEach((el) => countIo.observe(el));
+}
+
 // hide the scroll hint once the visitor has started scrolling
 const onScroll = () => root.classList.toggle("scrolled", scrollY > 40);
 addEventListener("scroll", onScroll, { passive: true });

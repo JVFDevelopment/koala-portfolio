@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lost in the void — Koala</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#05060d">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #05060d; --fg: #eef0ff; --muted: #b9bdda; --a1: #7cf7c9; --a2: #8a7bff; --a3: #ff6fb5; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh; min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 22px;
+      padding: 24px 16px; text-align: center; background: radial-gradient(60% 50% at 50% 40%, #11132a, var(--bg)) var(--bg);
+      color: var(--fg); font-family: "Space Grotesk", system-ui, sans-serif;
+    }
+    svg { width: 96px; height: 96px; filter: drop-shadow(0 0 28px rgba(124, 247, 201, .35)); animation: float 4s ease-in-out infinite; }
+    @keyframes float { 50% { transform: translateY(-12px) rotate(4deg); } }
+    h1 {
+      font-size: clamp(88px, 22vw, 180px); line-height: .9; letter-spacing: -.05em;
+      background: linear-gradient(100deg, var(--a1), var(--a2) 50%, var(--a3)); -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    p { max-width: 420px; color: var(--muted); font-size: 18px; line-height: 1.5; }
+    a {
+      margin-top: 10px; padding: 14px 30px; border: 1px solid var(--a1); border-radius: 99px; color: var(--fg); text-decoration: none;
+      font-family: "JetBrains Mono", monospace; font-size: 14px; transition: background .3s, color .3s;
+    }
+    a:hover { background: var(--a1); color: var(--bg); }
+    a:focus-visible { outline: 2px solid var(--a1); outline-offset: 4px; }
+    @media (prefers-reduced-motion: reduce) { svg { animation: none; } }
+  </style>
+</head>
+<body>
+  <svg viewBox="12 9 40 46" aria-hidden="true">
+    <path d="M32 9 52 20.5 32 32 12 20.5Z" fill="#7cf7c9"/>
+    <path d="M12 20.5 32 32v23L12 43.5Z" fill="#8a7bff"/>
+    <path d="M52 20.5 32 32v23l20-11.5Z" fill="#ff6fb5"/>
+  </svg>
+  <h1>404</h1>
+  <p>This block hasn't been placed yet. The page you're looking for isn't in this world.</p>
+  <a href="/">Back to the island →</a>
+</body>
+</html>

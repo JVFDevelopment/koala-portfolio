@@ -38,7 +38,8 @@ scene.fog = new THREE.FogExp2(0x05060d, 0.018);
 const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 400);
 
 // ---------- lights ----------
-scene.add(new THREE.HemisphereLight(0x8a7bff, 0x0a0a1a, 0.9));
+const sky = new THREE.HemisphereLight(0x8a7bff, 0x0a0a1a, 0.9);
+scene.add(sky);
 const sun = new THREE.DirectionalLight(0xfff1d6, 2.2);
 const sunOffset = new THREE.Vector3(20, 30, 10);
 // the sun follows the island around, so its shadow camera can stay tight
@@ -134,6 +135,7 @@ function addHalo(parent, color, size, opacity) {
   halo.scale.setScalar(size);
   parent.add(halo);
   halos.push(halo);
+  return halo;
 }
 
 // ---------- glowing core + orbiting crystals ----------
@@ -143,8 +145,10 @@ const core = new THREE.Mesh(
 );
 core.position.y = 9;
 coreLight.position.copy(core.position);
-addHalo(core, 0x7cf7c9, 7, 0.9);
-addHalo(core, 0x7cf7c9, 22, 0.35); // wide wash, like bloom spilling over the island
+const coreHalos = [
+  addHalo(core, 0x7cf7c9, 7, 0.9),
+  addHalo(core, 0x7cf7c9, 22, 0.35), // wide wash, like bloom spilling over the island
+];
 world.add(core);
 
 const crystals = [];
@@ -154,10 +158,139 @@ const crystalMats = crystalColors.map((hex) =>
   new THREE.MeshStandardMaterial({ color: 0x000000, emissive: hex, emissiveIntensity: 2.5 }));
 for (let i = 0; i < 14; i++) {
   const c = new THREE.Mesh(crystalGeo, crystalMats[i % 3]);
-  c.userData = { r: 6 + rand() * 14, a: rand() * Math.PI * 2, s: 0.15 + rand() * 0.3, y: 2 + rand() * 12, b: rand() * 6 };
-  addHalo(c, crystalColors[i % 3], 3.5, 0.9);
+  c.userData = {
+    r: 6 + rand() * 14, a: rand() * Math.PI * 2, s: 0.15 + rand() * 0.3, y: 2 + rand() * 12, b: rand() * 6,
+    k: i % 3, back: -Infinity, // palette slot; time it reappears after a burst
+  };
+  c.userData.halo = addHalo(c, crystalColors[i % 3], 3.5, 0.9);
   crystals.push(c);
   world.add(c);
+}
+
+// ---------- section moods ----------
+// Each section tints the world: the core, the crystals and the sky light on the island.
+const MOODS = [
+  { core: 0x7cf7c9, sky: 0x8a7bff, crystals: [0x8a7bff, 0xff6fb5, 0x7cf7c9] }, // hero
+  { core: 0xff7a3d, sky: 0xff6a4d, crystals: [0xff4d2e, 0xffae3d, 0xff6fb5] }, // work: Severance embers
+  { core: 0x9d8cff, sky: 0x6f7bff, crystals: [0xb59cff, 0x8a7bff, 0x7cf7c9] }, // services
+  { core: 0x7cf7c9, sky: 0x8a7bff, crystals: [0xff6fb5, 0x7cf7c9, 0x8a7bff] }, // contact
+].map((m) => ({ core: new THREE.Color(m.core), sky: new THREE.Color(m.sky), crystals: m.crystals.map((c) => new THREE.Color(c)) }));
+const moodSections = ["top", "work", "services", "contact"].map((id) => document.getElementById(id));
+let moodMids = [];
+const mood = { core: new THREE.Color(0x7cf7c9), sky: new THREE.Color(0x8a7bff), crystals: crystalColors.map((c) => new THREE.Color(c)) };
+const target = { core: new THREE.Color(), sky: new THREE.Color(), crystals: crystalColors.map(() => new THREE.Color()) };
+const smoothstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+function updateMood(k) {
+  // blend between the moods of the sections either side of the viewport centre
+  const c = scrollY + innerHeight / 2;
+  let i = 0, j = 0, t = 0;
+  if (c >= moodMids[moodMids.length - 1]) i = j = moodMids.length - 1;
+  else if (c > moodMids[0]) {
+    while (c >= moodMids[i + 1]) i++;
+    j = i + 1;
+    t = smoothstep(0.3, 0.7, (c - moodMids[i]) / (moodMids[j] - moodMids[i]));
+  }
+  const a = MOODS[i], b = MOODS[j];
+  target.core.lerpColors(a.core, b.core, t);
+  target.sky.lerpColors(a.sky, b.sky, t);
+  target.crystals.forEach((col, n) => col.lerpColors(a.crystals[n], b.crystals[n], t));
+
+  mood.core.lerp(target.core, k);
+  mood.sky.lerp(target.sky, k);
+  mood.crystals.forEach((col, n) => col.lerp(target.crystals[n], k));
+  core.material.color.copy(mood.core);
+  core.material.emissive.copy(mood.core);
+  coreLight.color.copy(mood.core);
+  coreHalos.forEach((h) => h.material.color.copy(mood.core));
+  sky.color.copy(mood.sky);
+  crystalMats.forEach((m, n) => m.emissive.copy(mood.crystals[n]));
+  crystals.forEach((c) => c.userData.halo.material.color.copy(mood.crystals[c.userData.k]));
+}
+
+// ---------- crystal bursts ----------
+// Click or tap a crystal and it shatters, then regrows a few seconds later.
+const FRAGS_PER_BURST = 10;
+const frags = new THREE.InstancedMesh(new THREE.BoxGeometry(0.34, 0.34, 0.34), new THREE.MeshBasicMaterial(), 60);
+frags.frustumCulled = false;
+const fragState = Array.from({ length: frags.count }, () => ({ born: -1, from: new THREE.Vector3(), vel: new THREE.Vector3(), spin: new THREE.Vector3() }));
+const hidden = new THREE.Matrix4().makeScale(0, 0, 0);
+for (let i = 0; i < frags.count; i++) { frags.setMatrixAt(i, hidden); frags.setColorAt(i, new THREE.Color()); }
+scene.add(frags);
+// a quick flash where the crystal was
+const flashes = Array.from({ length: 6 }, () => {
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowMap, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  s.visible = false;
+  scene.add(s);
+  return { sprite: s, born: -1 };
+});
+let fragsLive = 0;
+const FRAG_LIFE = 0.9, FLASH_LIFE = 0.45;
+const _v = new THREE.Vector3(), _col = new THREE.Color();
+
+function burst(c, t) {
+  c.getWorldPosition(_v);
+  _col.copy(mood.crystals[c.userData.k]).multiplyScalar(2.5); // over 1, so bloom catches it
+  const flash = flashes.find((x) => x.born < 0) ?? flashes[0];
+  if (flash.born < 0) fragsLive++;
+  flash.born = t;
+  flash.sprite.position.copy(_v);
+  flash.sprite.material.color.copy(mood.crystals[c.userData.k]);
+  flash.sprite.visible = true;
+  let made = 0;
+  for (let i = 0; i < fragState.length && made < FRAGS_PER_BURST; i++) {
+    const f = fragState[i];
+    if (f.born >= 0) continue;
+    f.born = t;
+    f.from.copy(_v);
+    f.vel.set(rand() - 0.5, rand() - 0.3, rand() - 0.5).normalize().multiplyScalar(4 + rand() * 4);
+    f.spin.set(rand() * 8, rand() * 8, rand() * 8);
+    frags.setColorAt(i, _col);
+    made++;
+  }
+  frags.instanceColor.needsUpdate = true;
+  fragsLive += made;
+  c.userData.back = t + 2.5;
+}
+
+function updateFrags(t) {
+  for (let i = 0; i < fragState.length; i++) {
+    const f = fragState[i];
+    if (f.born < 0) continue;
+    const age = t - f.born;
+    if (age >= FRAG_LIFE) {
+      f.born = -1;
+      fragsLive--;
+      frags.setMatrixAt(i, hidden);
+      continue;
+    }
+    dummy.position.copy(f.from).addScaledVector(f.vel, age * (1 - age / (2 * FRAG_LIFE))); // decelerating
+    dummy.rotation.set(f.spin.x * age, f.spin.y * age, f.spin.z * age);
+    dummy.scale.setScalar(1 - age / FRAG_LIFE);
+    dummy.updateMatrix();
+    frags.setMatrixAt(i, dummy.matrix);
+  }
+  frags.instanceMatrix.needsUpdate = true;
+  for (const fl of flashes) {
+    if (fl.born < 0) continue;
+    const p = (t - fl.born) / FLASH_LIFE;
+    if (p >= 1) { fl.born = -1; fl.sprite.visible = false; fragsLive--; continue; }
+    fl.sprite.scale.setScalar(1.5 + 7 * ease(p));
+    fl.sprite.material.opacity = 1 - p;
+  }
+}
+
+// nearest visible crystal to a screen point, within `radius` px
+function crystalAt(x, y, radius) {
+  let best = null, bestD = radius;
+  for (const c of crystals) {
+    if (!c.visible) continue;
+    c.getWorldPosition(_v).project(camera);
+    if (_v.z > 1) continue; // behind the camera
+    const d = Math.hypot((_v.x + 1) / 2 * size.w - x, (1 - _v.y) / 2 * size.h - y);
+    if (d < bestD) { bestD = d; best = c; }
+  }
+  return best;
 }
 
 // ---------- star field ----------
@@ -227,10 +360,24 @@ async function applyLevel(next) {
 const mouse = new THREE.Vector2(), smoothMouse = new THREE.Vector2();
 let smoothScroll = 0, maxScroll = 1, resizeQueued = false;
 const size = { w: 0, h: 0 };
+const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
+const cursorRing = document.querySelector(".cursor");
+const isUi = (el) => el instanceof Element && el.closest("a, button, input, .card, .stat");
+const pointer = { x: 0, y: 0, moved: false, overUi: false };
 addEventListener("pointermove", (e) => {
   mouse.set(e.clientX / innerWidth - 0.5, e.clientY / innerHeight - 0.5);
+  Object.assign(pointer, { x: e.clientX, y: e.clientY, moved: true, overUi: !!isUi(e.target) });
 });
-const measure = () => { maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight); };
+// "click" rather than pointerdown, so a touch that starts a scroll doesn't count
+addEventListener("click", (e) => {
+  if (!renderer || isUi(e.target)) return;
+  const c = crystalAt(e.clientX, e.clientY, 48);
+  if (c) burst(c, (performance.now() - t0) / 1000);
+});
+const measure = () => {
+  maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  moodMids = moodSections.map((s) => { const r = s.getBoundingClientRect(); return r.top + scrollY + r.height / 2; });
+};
 new ResizeObserver(measure).observe(document.body);
 addEventListener("resize", () => { measure(); resizeQueued = true; });
 document.addEventListener("visibilitychange", () => { settleUntil = performance.now() + 1000; });
@@ -311,7 +458,13 @@ function tick(now) {
     const u = c.userData;
     c.position.set(Math.cos(u.a + t * u.s) * u.r, u.y + Math.sin(t + u.b) * 1.2, Math.sin(u.a + t * u.s) * u.r);
     c.rotation.set(t + u.b, t * 0.7, 0);
+    // after a burst: hidden until `back`, then regrows
+    const since = t - u.back;
+    c.visible = since >= 0;
+    c.scale.setScalar(since < 0.6 ? ease(Math.max(0, since) / 0.6) : 1);
   });
+  if (fragsLive) updateFrags(t);
+  updateMood(1 - Math.pow(0.92, f));
   stars.rotation.y = t * 0.005;
   dust.rotation.y = -t * 0.02;
   dust.position.y = Math.sin(t * 0.3) * 1.5;
@@ -321,6 +474,12 @@ function tick(now) {
   const camY = 14 - smoothScroll * 20;
   camera.position.set(smoothMouse.x * 6 + dist * 0.35, camY - smoothMouse.y * 4, dist);
   camera.lookAt(0, 3 - smoothScroll * 6, 0);
+
+  // grow the cursor ring over a crystal so the bursts are discoverable
+  if (finePointer && pointer.moved) {
+    pointer.moved = false;
+    cursorRing?.classList.toggle("crystal", !pointer.overUi && !!crystalAt(pointer.x, pointer.y, 48));
+  }
 
   if (LEVELS[level].post) composer.render();
   else renderer.render(scene, camera);
